@@ -60,30 +60,6 @@ make down
 make logs
 ```
 
-## Тестовый API
-
-Получить моковый список товаров через Gateway:
-
-```bash
-curl http://localhost:8080/products
-```
-
-Gateway принимает HTTP-запрос, вызывает `CatalogService/ListProducts` по gRPC
-и возвращает JSON:
-
-```json
-{
-  "products": [
-    {
-      "id": "product-1",
-      "name": "Mechanical Keyboard",
-      "price_minor_units": 129900,
-      "currency_code": "RUB"
-    }
-  ]
-}
-```
-
 ## Запуск с другим конфигурационным файлом
 
 Для команд `up`, `down` и `logs` необходимо явно указать env-файл:
