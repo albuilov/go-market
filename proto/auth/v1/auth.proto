@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package auth.v1;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "go-market/gen/go/auth/v1;authv1";
+
+message AuthorizationRule {
+  bool public = 1;
+}
+
+extend google.protobuf.MethodOptions {
+  AuthorizationRule authorization = 50001;
+}

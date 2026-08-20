@@ -2,10 +2,17 @@ syntax = "proto3";
 
 package catalog.v1;
 
+import "auth/v1/auth.proto";
+import "google/api/annotations.proto";
+
 option go_package = "go-market/gen/go/catalog/v1;catalogv1";
 
 service CatalogService {
-  rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
+  rpc ListProducts(ListProductsRequest) returns (ListProductsResponse) {
+    option (google.api.http) = {get: "/api/v1/products"};
+
+    option (auth.v1.authorization) = {public: true};
+  }
 }
 
 message ListProductsRequest {}

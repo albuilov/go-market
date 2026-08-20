@@ -8,6 +8,9 @@ services:
     environment:
       HTTP_ADDRESS: ":8080"
       CATALOG_GRPC_ADDRESS: "catalog:50051"
+      JWT_SECRET: "${JWT_SECRET}"
+      JWT_ISSUER: "${JWT_ISSUER}"
+      JWT_AUDIENCE: "${JWT_AUDIENCE}"
     ports:
       - "${HTTP_PORT_GATEWAY}:8080"
     depends_on:

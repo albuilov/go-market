@@ -13,11 +13,23 @@ type Client struct {
 	connection *grpc.ClientConn
 }
 
-func New(address string) (*Client, error) {
-	connection, err := grpc.NewClient(
-		address,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
+func New(address string, unaryInterceptors ...grpc.UnaryClientInterceptor) (*Client, error) {
+	options := []grpc.DialOption{
+		grpc.WithTransportCredentials(
+			insecure.NewCredentials(),
+		),
+	}
+
+	if len(unaryInterceptors) > 0 {
+		options = append(
+			options,
+			grpc.WithChainUnaryInterceptor(
+				unaryInterceptors...,
+			),
+		)
+	}
+
+	connection, err := grpc.NewClient(address, options...)
 	if err != nil {
 		return nil, err
 	}
