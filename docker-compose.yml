@@ -1,0 +1,36 @@
+name: go-market
+
+services:
+  gateway:
+    build:
+      context: ./services/gateway
+      dockerfile: Dockerfile
+    environment:
+      HTTP_ADDRESS: ":8080"
+      CATALOG_GRPC_ADDRESS: "catalog:50051"
+    ports:
+      - "${HTTP_PORT_GATEWAY}:8080"
+    depends_on:
+      catalog:
+        condition: service_started
+    networks:
+      - go-market-network
+
+  catalog:
+    build:
+      context: ./services/catalog
+      dockerfile: Dockerfile
+    environment:
+      GRPC_ADDRESS: ":50051"
+    ports:
+      - "${GRPC_PORT_CATALOG}:50051"
+    networks:
+      - go-market-network
+
+networks:
+  go-market-network:
+    driver: bridge
+
+
+
+  
