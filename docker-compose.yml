@@ -1,6 +1,24 @@
 name: go-market
 
 services:
+  frontend:
+    attach: false
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "${HTTP_PORT_FRONTEND}:80"
+    depends_on:
+      gateway:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--output-document=-", "http://localhost/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - go-market-network
+
   gateway:
     build:
       context: .
@@ -33,7 +51,3 @@ services:
 networks:
   go-market-network:
     driver: bridge
-
-
-
-  

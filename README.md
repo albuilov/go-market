@@ -4,6 +4,7 @@ E-commerce backend на Go для практики и экспериментов
 
 ## Сервисы
 
+- `frontend` — React SPA, собирается Vite и раздаётся через Caddy;
 - `gateway` — внешняя HTTP-точка входа;
 - `catalog` — управление каталогом товаров, предоставляет gRPC API.
 
@@ -18,12 +19,15 @@ E-commerce backend на Go для практики и экспериментов
 Для локальной разработки дополнительно:
 
 - Go 1.26.4;
+- Node.js 24;
 - Protocol Buffers Compiler (`protoc`).
 
 Проверить основные инструменты:
 
 ```bash
 go version
+node --version
+npm --version
 docker --version
 docker compose version
 protoc --version
@@ -48,6 +52,14 @@ brew install protobuf
 make run
 ```
 
+После запуска доступны:
+
+- frontend: [http://localhost:3000](http://localhost:3000);
+- gateway API: [http://localhost:8080/api/v1/products](http://localhost:8080/api/v1/products).
+
+Frontend обращается к backend по относительному пути `/api`. В Docker запросы
+проксирует Caddy на сервис `gateway`, поэтому отдельная настройка CORS не нужна.
+
 Остановить локальное приложение:
 
 ```bash
@@ -58,6 +70,27 @@ make down
 
 ```bash
 make logs
+```
+
+### Разработка frontend без Docker
+
+Запустить backend через Docker Compose, затем в отдельном терминале:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Vite откроет приложение на `http://localhost:5173` и проксирует `/api` на
+`http://localhost:8080`.
+
+Проверить frontend перед сборкой контейнера:
+
+```bash
+cd frontend
+npm run lint
+npm run build
 ```
 
 ## Запуск с другим конфигурационным файлом
