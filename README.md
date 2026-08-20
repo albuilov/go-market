@@ -54,8 +54,8 @@ make run
 
 После запуска доступны:
 
-- frontend: [http://localhost:3000](http://localhost:3000);
-- gateway API: [http://localhost:8080/api/v1/products](http://localhost:8080/api/v1/products).
+- frontend: [http://localhost:8080](http://localhost:8080);
+- gateway API: [http://localhost:3000/api/v1/products](http://localhost:3000/api/v1/products).
 
 Frontend обращается к backend по относительному пути `/api`. В Docker запросы
 проксирует Caddy на сервис `gateway`, поэтому отдельная настройка CORS не нужна.
