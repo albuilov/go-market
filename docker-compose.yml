@@ -3,8 +3,8 @@ name: go-market
 services:
   gateway:
     build:
-      context: ./services/gateway
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/gateway/Dockerfile
     environment:
       HTTP_ADDRESS: ":8080"
       CATALOG_GRPC_ADDRESS: "catalog:50051"
@@ -18,8 +18,8 @@ services:
 
   catalog:
     build:
-      context: ./services/catalog
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/catalog/Dockerfile
     environment:
       GRPC_ADDRESS: ":50051"
     ports:

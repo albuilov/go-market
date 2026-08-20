@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package catalog.v1;
+
+option go_package = "go-market/gen/go/catalog/v1;catalogv1";
+
+service CatalogService {
+  rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
+}
+
+message ListProductsRequest {}
+
+message ListProductsResponse {
+  repeated Product products = 1;
+}
+
+message Product {
+  string id = 1;
+  string name = 2;
+  int64 price_minor_units = 3;
+  string currency_code = 4;
+}
