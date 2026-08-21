@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "go-market/gen/go/common/v1;commonv1";
+
+// ErrorResponse описывает публичный ответ Gateway при ошибке.
+message ErrorResponse {
+  string code = 1;
+  string message = 2;
+}

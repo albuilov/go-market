@@ -1,0 +1,105 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Go Market API",
+    "description": "Public HTTP API of the Go Market application.",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "CatalogService",
+      "description": "Product catalog operations."
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/v1/products": {
+      "get": {
+        "summary": "List products",
+        "operationId": "CatalogService_ListProducts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/catalog.v1.ListProductsResponse"
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "$ref": "#/definitions/common.v1.ErrorResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "CatalogService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "catalog.v1.ListProductsResponse": {
+      "type": "object",
+      "properties": {
+        "products": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/catalog.v1.Product"
+          }
+        }
+      }
+    },
+    "catalog.v1.Product": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "priceMinorUnits": {
+          "type": "string",
+          "format": "int64"
+        },
+        "currencyCode": {
+          "type": "string"
+        }
+      }
+    },
+    "common.v1.ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "description": "ErrorResponse описывает публичный ответ Gateway при ошибке."
+    }
+  },
+  "securityDefinitions": {
+    "BearerAuth": {
+      "type": "apiKey",
+      "description": "JWT access token with the Bearer prefix.",
+      "name": "Authorization",
+      "in": "header"
+    }
+  }
+}

@@ -8,6 +8,7 @@ package catalogv1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "go-market/gen/go/auth/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -185,7 +186,7 @@ var File_catalog_v1_catalog_proto protoreflect.FileDescriptor
 const file_catalog_v1_catalog_proto_rawDesc = "" +
 	"\n" +
 	"\x18catalog/v1/catalog.proto\x12\n" +
-	"catalog.v1\x1a\x12auth/v1/auth.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"P\n" +
+	"catalog.v1\x1a\x12auth/v1/auth.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"P\n" +
 	"\x13ListProductsRequest\x12+\n" +
 	"\tpage_size\x18\x01 \x01(\x05B\t\xbaH\x06\x1a\x04\x18d(\x01H\x00R\bpageSize\x88\x01\x01B\f\n" +
 	"\n" +
@@ -196,9 +197,17 @@ const file_catalog_v1_catalog_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12*\n" +
 	"\x11price_minor_units\x18\x03 \x01(\x03R\x0fpriceMinorUnits\x12#\n" +
-	"\rcurrency_code\x18\x04 \x01(\tR\fcurrencyCode2\x83\x01\n" +
-	"\x0eCatalogService\x12q\n" +
-	"\fListProducts\x12\x1f.catalog.v1.ListProductsRequest\x1a .catalog.v1.ListProductsResponse\"\x1e\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x12\x12\x10/api/v1/productsB'Z%go-market/gen/go/catalog/v1;catalogv1b\x06proto3"
+	"\rcurrency_code\x18\x04 \x01(\tR\fcurrencyCode2\xd5\x01\n" +
+	"\x0eCatalogService\x12\xc2\x01\n" +
+	"\fListProducts\x12\x1f.catalog.v1.ListProductsRequest\x1a .catalog.v1.ListProductsResponse\"o\x92AN\x12\rList productsJ=\n" +
+	"\adefault\x122\n" +
+	"\x12An error response.\x12\x1c\n" +
+	"\x1a\x1a\x18.common.v1.ErrorResponse\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x12\x12\x10/api/v1/productsB\x94\x02\x92A\xe9\x01\x12E\n" +
+	"\rGo Market API\x12-Public HTTP API of the Go Market application.2\x051.0.02\x10application/json:\x10application/jsonZM\n" +
+	"K\n" +
+	"\n" +
+	"BearerAuth\x12=\b\x02\x12(JWT access token with the Bearer prefix.\x1a\rAuthorization \x02j-\n" +
+	"\x0eCatalogService\x12\x1bProduct catalog operations.Z%go-market/gen/go/catalog/v1;catalogv1b\x06proto3"
 
 var (
 	file_catalog_v1_catalog_proto_rawDescOnce sync.Once

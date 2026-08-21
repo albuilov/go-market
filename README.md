@@ -55,7 +55,11 @@ make run
 После запуска доступны:
 
 - frontend: [http://localhost:8080](http://localhost:8080);
-- gateway API: [http://localhost:3000/api/v1/products](http://localhost:3000/api/v1/products).
+- gateway API: [http://localhost:3000/api/v1/products](http://localhost:3000/api/v1/products);
+- Swagger UI: [http://localhost:3001/docs/](http://localhost:3001/docs/);
+- OpenAPI JSON: [http://localhost:3001/openapi.json](http://localhost:3001/openapi.json).
+
+Swagger работает на отдельном debug-порту, который Docker Compose публикует только на `127.0.0.1`.
 
 Frontend обращается к backend по относительному пути `/api`. В Docker запросы
 проксирует Caddy на сервис `gateway`, поэтому отдельная настройка CORS не нужна.
@@ -137,6 +141,12 @@ proto/
 gen/go/
 ```
 
+Сгенерированная спецификация OpenAPI сохраняется в:
+
+```text
+gen/openapi/spec/go-market.swagger.json
+```
+
 Сгенерировать код для всех protobuf-контрактов:
 
 ```bash
@@ -147,5 +157,6 @@ make proto
 
 1. устанавливает закреплённые Go-инструменты в локальный каталог `bin`;
 2. находит все `.proto` внутри каталога `proto`;
-3. генерирует Go-структуры и gRPC-код;
-4. обновляет зависимости корневого Go-модуля.
+3. генерирует Go-структуры, gRPC- и gRPC-Gateway-код;
+4. генерирует единую спецификацию OpenAPI 2.0;
+5. обновляет зависимости корневого Go-модуля.

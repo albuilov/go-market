@@ -9,6 +9,7 @@ import (
 
 const (
 	defaultGatewayHTTPAddress        = ":3000"
+	defaultGatewaySwaggerHTTPAddress = ":3001"
 	defaultGatewayReadHeaderTimeout  = 5 * time.Second
 	defaultGatewayReadTimeout        = 15 * time.Second
 	defaultGatewayWriteTimeout       = 15 * time.Second
@@ -24,12 +25,13 @@ type Config struct {
 }
 
 type GatewayConfig struct {
-	HTTPAddress       string
-	ReadHeaderTimeout time.Duration
-	ReadTimeout       time.Duration
-	WriteTimeout      time.Duration
-	IdleTimeout       time.Duration
-	ShutdownTimeout   time.Duration
+	HTTPAddress        string
+	SwaggerHTTPAddress string
+	ReadHeaderTimeout  time.Duration
+	ReadTimeout        time.Duration
+	WriteTimeout       time.Duration
+	IdleTimeout        time.Duration
+	ShutdownTimeout    time.Duration
 }
 
 type CatalogConfig struct {
@@ -66,12 +68,13 @@ func Load() (Config, error) {
 
 	return Config{
 		Gateway: GatewayConfig{
-			HTTPAddress:       envconfig.OrDefault("GATEWAY_HTTP_ADDRESS", defaultGatewayHTTPAddress),
-			ReadHeaderTimeout: defaultGatewayReadHeaderTimeout,
-			ReadTimeout:       defaultGatewayReadTimeout,
-			WriteTimeout:      defaultGatewayWriteTimeout,
-			IdleTimeout:       defaultGatewayIdleTimeout,
-			ShutdownTimeout:   defaultGatewayShutdownTimeout,
+			HTTPAddress:        envconfig.OrDefault("GATEWAY_HTTP_ADDRESS", defaultGatewayHTTPAddress),
+			SwaggerHTTPAddress: envconfig.OrDefault("SWAGGER_HTTP_ADDRESS", defaultGatewaySwaggerHTTPAddress),
+			ReadHeaderTimeout:  defaultGatewayReadHeaderTimeout,
+			ReadTimeout:        defaultGatewayReadTimeout,
+			WriteTimeout:       defaultGatewayWriteTimeout,
+			IdleTimeout:        defaultGatewayIdleTimeout,
+			ShutdownTimeout:    defaultGatewayShutdownTimeout,
 		},
 		Catalog: CatalogConfig{
 			GRPCAddress:        catalogGRPCAddress,

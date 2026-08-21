@@ -17,3 +17,14 @@ plugins:
     out: gen/go
     opt:
       - paths=source_relative
+
+  - local: protoc-gen-openapiv2
+    out: gen/openapi/spec
+    strategy: all
+    opt:
+      - allow_merge=true
+      - disable_default_errors=true
+      - merge_file_name=go-market
+      - omit_array_item_type_when_ref_sibling=true
+      - openapi_naming_strategy=fqn
+      - preserve_rpc_order=true

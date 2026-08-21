@@ -27,12 +27,14 @@ services:
       dockerfile: services/gateway/Dockerfile
     environment:
       GATEWAY_HTTP_ADDRESS: ":${GATEWAY_HTTP_PORT}"
+      SWAGGER_HTTP_ADDRESS: ":${SWAGGER_HTTP_PORT}"
       CATALOG_GRPC_ADDRESS: "catalog:${CATALOG_GRPC_PORT}"
       JWT_SECRET: "${JWT_SECRET}"
       JWT_ISSUER: "${JWT_ISSUER}"
       JWT_AUDIENCE: "${JWT_AUDIENCE}"
     ports:
       - "${GATEWAY_HTTP_PORT}:${GATEWAY_HTTP_PORT}"
+      - "127.0.0.1:${SWAGGER_HTTP_PORT}:${SWAGGER_HTTP_PORT}"
     depends_on:
       catalog:
         condition: service_healthy

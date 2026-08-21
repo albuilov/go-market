@@ -8,6 +8,7 @@ import (
 
 func TestLoad(t *testing.T) {
 	t.Setenv("GATEWAY_HTTP_ADDRESS", "  :9090  ")
+	t.Setenv("SWAGGER_HTTP_ADDRESS", "  :9091  ")
 	t.Setenv("CATALOG_GRPC_ADDRESS", "  catalog:50051  ")
 	t.Setenv("JWT_SECRET", "secret")
 	t.Setenv("JWT_ISSUER", "issuer")
@@ -21,6 +22,14 @@ func TestLoad(t *testing.T) {
 
 	if cfg.Gateway.HTTPAddress != ":9090" {
 		t.Errorf("Gateway.HTTPAddress = %q, want %q", cfg.Gateway.HTTPAddress, ":9090")
+	}
+
+	if cfg.Gateway.SwaggerHTTPAddress != ":9091" {
+		t.Errorf(
+			"Gateway.SwaggerHTTPAddress = %q, want %q",
+			cfg.Gateway.SwaggerHTTPAddress,
+			":9091",
+		)
 	}
 
 	if cfg.Gateway.ReadHeaderTimeout != 5*time.Second {
@@ -74,6 +83,7 @@ func TestLoad(t *testing.T) {
 
 func TestLoadUsesDefaultGatewayHTTPAddress(t *testing.T) {
 	t.Setenv("GATEWAY_HTTP_ADDRESS", "  ")
+	t.Setenv("SWAGGER_HTTP_ADDRESS", "  ")
 	setRequiredEnv(t)
 
 	cfg, err := Load()
@@ -86,6 +96,14 @@ func TestLoadUsesDefaultGatewayHTTPAddress(t *testing.T) {
 			"Gateway.HTTPAddress = %q, want %q",
 			cfg.Gateway.HTTPAddress,
 			defaultGatewayHTTPAddress,
+		)
+	}
+
+	if cfg.Gateway.SwaggerHTTPAddress != defaultGatewaySwaggerHTTPAddress {
+		t.Errorf(
+			"Gateway.SwaggerHTTPAddress = %q, want %q",
+			cfg.Gateway.SwaggerHTTPAddress,
+			defaultGatewaySwaggerHTTPAddress,
 		)
 	}
 }

@@ -45,6 +45,7 @@ func main() {
 	logger.Info(
 		"starting gateway service",
 		slog.String("http_address", cfg.Gateway.HTTPAddress),
+		slog.String("swagger_http_address", cfg.Gateway.SwaggerHTTPAddress),
 		slog.String("catalog_address", cfg.Catalog.GRPCAddress),
 	)
 
