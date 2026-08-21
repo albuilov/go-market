@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"fmt"
+	"go-market/pkg/requestid"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -61,7 +62,7 @@ func incomingHeaderMatcher(header string) (string, bool) {
 		header,
 		httpmiddleware.RequestIDHeader,
 	) {
-		return "x-request-id", true
+		return requestid.GRPCMetadataKey, true
 	}
 
 	return runtime.DefaultHeaderMatcher(header)

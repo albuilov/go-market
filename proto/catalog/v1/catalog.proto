@@ -3,6 +3,7 @@ syntax = "proto3";
 package catalog.v1;
 
 import "auth/v1/auth.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 
 option go_package = "go-market/gen/go/catalog/v1;catalogv1";
@@ -15,7 +16,14 @@ service CatalogService {
   }
 }
 
-message ListProductsRequest {}
+message ListProductsRequest {
+  optional int32 page_size = 1 [
+    (buf.validate.field).int32 = {
+      gte: 1
+      lte: 100
+    }
+  ];
+}
 
 message ListProductsResponse {
   repeated Product products = 1;

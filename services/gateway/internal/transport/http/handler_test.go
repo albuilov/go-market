@@ -162,3 +162,46 @@ func TestHandlerForwardsRequestIDToGRPC(t *testing.T) {
 		t.Errorf("gRPC request ID = %q, want %q", grpcRequestID, requestID)
 	}
 }
+
+func TestHandlerDoesNotExposeInternalGRPCError(t *testing.T) {
+	handler, err := NewHandler(
+		context.Background(),
+		newTestLogger(),
+		catalogClientStub{
+			err: status.Error(
+				codes.Internal,
+				"database connection contains sensitive details",
+			),
+		},
+	)
+	if err != nil {
+		t.Fatalf("NewHandler() error = %v", err)
+	}
+
+	request := httptest.NewRequest(
+		http.MethodGet,
+		"/api/v1/products",
+		nil,
+	)
+	recorder := httptest.NewRecorder()
+
+	handler.ServeHTTP(recorder, request)
+
+	if got, want := recorder.Code, http.StatusInternalServerError; got != want {
+		t.Errorf("status code = %d, want %d", got, want)
+	}
+
+	body := recorder.Body.String()
+
+	if !strings.Contains(body, `"code":"Internal"`) {
+		t.Errorf("response does not contain error code: %s", body)
+	}
+
+	if !strings.Contains(body, `"message":"internal server error"`) {
+		t.Errorf("response does not contain public error message: %s", body)
+	}
+
+	if strings.Contains(body, "sensitive details") {
+		t.Errorf("internal error details were exposed: %s", body)
+	}
+}

@@ -4,42 +4,29 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/google/uuid"
+	"go-market/pkg/requestid"
 )
 
-const RequestIDHeader = "X-Request-ID"
+// RequestIDHeader содержит имя HTTP-заголовка с идентификатором запроса.
+const RequestIDHeader = requestid.HTTPHeader
 
-type requestIDContextKey struct{}
-
+// RequestID добавляет идентификатор запроса в HTTP-заголовки и context.
 func RequestID(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		requestID := normalizeRequestID(
+		id := requestid.Normalize(
 			r.Header.Get(RequestIDHeader),
 		)
 
-		r.Header.Set(RequestIDHeader, requestID)
-		w.Header().Set(RequestIDHeader, requestID)
+		r.Header.Set(RequestIDHeader, id)
+		w.Header().Set(RequestIDHeader, id)
 
-		ctx := context.WithValue(
-			r.Context(),
-			requestIDContextKey{},
-			requestID,
-		)
+		ctx := requestid.WithID(r.Context(), id)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
+// RequestIDFromContext возвращает идентификатор запроса из context.
 func RequestIDFromContext(ctx context.Context) (string, bool) {
-	requestID, ok := ctx.Value(requestIDContextKey{}).(string)
-	return requestID, ok
-}
-
-func normalizeRequestID(value string) string {
-	requestID, err := uuid.Parse(value)
-	if err != nil {
-		return uuid.NewString()
-	}
-
-	return requestID.String()
+	return requestid.FromContext(ctx)
 }

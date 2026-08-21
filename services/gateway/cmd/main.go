@@ -54,10 +54,7 @@ func main() {
 		cfg,
 		tokenVerifier,
 	); err != nil {
-		logger.Error(
-			"gateway service failed",
-			slog.Any("error", err),
-		)
+		logger.Error("gateway service failed", slog.Any("error", err))
 		os.Exit(1)
 	}
 }

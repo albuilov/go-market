@@ -7,6 +7,7 @@
 package catalogv1
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "go-market/gen/go/auth/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -25,6 +26,7 @@ const (
 
 type ListProductsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	PageSize      *int32                 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -57,6 +59,13 @@ func (x *ListProductsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListProductsRequest.ProtoReflect.Descriptor instead.
 func (*ListProductsRequest) Descriptor() ([]byte, []int) {
 	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ListProductsRequest) GetPageSize() int32 {
+	if x != nil && x.PageSize != nil {
+		return *x.PageSize
+	}
+	return 0
 }
 
 type ListProductsResponse struct {
@@ -176,8 +185,11 @@ var File_catalog_v1_catalog_proto protoreflect.FileDescriptor
 const file_catalog_v1_catalog_proto_rawDesc = "" +
 	"\n" +
 	"\x18catalog/v1/catalog.proto\x12\n" +
-	"catalog.v1\x1a\x12auth/v1/auth.proto\x1a\x1cgoogle/api/annotations.proto\"\x15\n" +
-	"\x13ListProductsRequest\"G\n" +
+	"catalog.v1\x1a\x12auth/v1/auth.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"P\n" +
+	"\x13ListProductsRequest\x12+\n" +
+	"\tpage_size\x18\x01 \x01(\x05B\t\xbaH\x06\x1a\x04\x18d(\x01H\x00R\bpageSize\x88\x01\x01B\f\n" +
+	"\n" +
+	"_page_size\"G\n" +
 	"\x14ListProductsResponse\x12/\n" +
 	"\bproducts\x18\x01 \x03(\v2\x13.catalog.v1.ProductR\bproducts\"~\n" +
 	"\aProduct\x12\x0e\n" +
@@ -222,6 +234,7 @@ func file_catalog_v1_catalog_proto_init() {
 	if File_catalog_v1_catalog_proto != nil {
 		return
 	}
+	file_catalog_v1_catalog_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

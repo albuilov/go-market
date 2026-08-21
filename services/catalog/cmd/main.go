@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"errors"
-	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,9 +15,16 @@ import (
 )
 
 func main() {
+	logger := slog.New(
+		slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			Level: slog.LevelInfo,
+		}),
+	)
+
 	cfg, err := config.Load()
 	if err != nil {
-		log.Fatalf("failed to load configuration: %v", err)
+		logger.Error("failed to load configuration", slog.Any("error", err))
+		os.Exit(1)
 	}
 
 	ctx, stop := signal.NotifyContext(
@@ -27,13 +34,17 @@ func main() {
 	)
 	defer stop()
 
-	log.Printf(
-		"catalog gRPC server is listening on %s",
-		cfg.Catalog.GRPCAddress,
+	logger.Info(
+		"starting catalog service",
+		slog.String("grpc_address", cfg.Catalog.GRPCAddress),
 	)
 
-	if err := app.Run(ctx, cfg); err != nil &&
+	if err := app.Run(ctx, logger, cfg); err != nil &&
 		!errors.Is(err, grpc.ErrServerStopped) {
-		log.Fatalf("catalog service failed: %v", err)
+		logger.Error(
+			"catalog service failed",
+			slog.Any("error", err),
+		)
+		os.Exit(1)
 	}
 }
