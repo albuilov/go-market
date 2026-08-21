@@ -5,13 +5,16 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
+    environment:
+      FRONTEND_HTTP_PORT: "${FRONTEND_HTTP_PORT}"
+      GATEWAY_HTTP_PORT: "${GATEWAY_HTTP_PORT}"
     ports:
-      - "${HTTP_PORT_FRONTEND}:80"
+      - "${FRONTEND_HTTP_PORT}:${FRONTEND_HTTP_PORT}"
     depends_on:
       gateway:
         condition: service_started
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--output-document=-", "http://localhost/healthz"]
+      test: ["CMD", "wget", "--quiet", "--output-document=-", "http://localhost:${FRONTEND_HTTP_PORT}/healthz"]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -23,13 +26,13 @@ services:
       context: .
       dockerfile: services/gateway/Dockerfile
     environment:
-      HTTP_ADDRESS: ":8080"
-      CATALOG_GRPC_ADDRESS: "catalog:50051"
+      GATEWAY_HTTP_ADDRESS: ":${GATEWAY_HTTP_PORT}"
+      CATALOG_GRPC_ADDRESS: "catalog:${CATALOG_GRPC_PORT}"
       JWT_SECRET: "${JWT_SECRET}"
       JWT_ISSUER: "${JWT_ISSUER}"
       JWT_AUDIENCE: "${JWT_AUDIENCE}"
     ports:
-      - "${HTTP_PORT_GATEWAY}:8080"
+      - "${GATEWAY_HTTP_PORT}:${GATEWAY_HTTP_PORT}"
     depends_on:
       catalog:
         condition: service_started
@@ -41,9 +44,9 @@ services:
       context: .
       dockerfile: services/catalog/Dockerfile
     environment:
-      GRPC_ADDRESS: ":50051"
+      CATALOG_GRPC_ADDRESS: ":${CATALOG_GRPC_PORT}"
     ports:
-      - "${GRPC_PORT_CATALOG}:50051"
+      - "${CATALOG_GRPC_PORT}:${CATALOG_GRPC_PORT}"
     networks:
       - go-market-network
 

@@ -20,6 +20,4 @@ COPY --from=builder /out/gateway ./gateway
 
 USER app
 
-EXPOSE 8080
-
 ENTRYPOINT ["./gateway"]

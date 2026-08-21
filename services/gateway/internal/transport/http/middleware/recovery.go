@@ -34,7 +34,7 @@ func Recovery(logger *slog.Logger, next http.Handler) http.Handler {
 				slog.String("stack", string(debug.Stack())),
 			)
 
-			// Если ответ уже начали отправлять, изменить status на 500 нельзя.
+			// Если ответ уже начали отправлять, изменить HTTP-статус на 500 нельзя.
 			if writer.status != 0 {
 				return
 			}

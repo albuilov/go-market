@@ -20,6 +20,4 @@ COPY --from=builder /out/catalog ./catalog
 
 USER app
 
-EXPOSE 50051
-
 ENTRYPOINT ["./catalog"]

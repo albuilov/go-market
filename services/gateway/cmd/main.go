@@ -9,39 +9,29 @@ import (
 
 	"go-market/gateway/internal/app"
 	gatewayauth "go-market/gateway/internal/auth"
+	"go-market/gateway/internal/config"
 )
 
 func main() {
-	httpAddress := os.Getenv("HTTP_ADDRESS")
-	if httpAddress == "" {
-		httpAddress = ":8080"
-	}
-
-	catalogAddress := os.Getenv("CATALOG_GRPC_ADDRESS")
-	if catalogAddress == "" {
-		catalogAddress = "localhost:50051"
-	}
-
-	jwtSecret := os.Getenv("JWT_SECRET")
-	jwtIssuer := os.Getenv("JWT_ISSUER")
-	jwtAudience := os.Getenv("JWT_AUDIENCE")
-
 	logger := slog.New(
 		slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 			Level: slog.LevelInfo,
 		}),
 	)
 
+	cfg, err := config.Load()
+	if err != nil {
+		logger.Error("failed to load configuration", slog.Any("error", err))
+		os.Exit(1)
+	}
+
 	tokenVerifier, err := gatewayauth.NewVerifier(
-		jwtSecret,
-		jwtIssuer,
-		jwtAudience,
+		cfg.JWT.Secret,
+		cfg.JWT.Issuer,
+		cfg.JWT.Audience,
 	)
 	if err != nil {
-		logger.Error(
-			"failed to configure JWT verifier",
-			slog.Any("error", err),
-		)
+		logger.Error("failed to configure JWT verifier", slog.Any("error", err))
 		os.Exit(1)
 	}
 
@@ -54,15 +44,14 @@ func main() {
 
 	logger.Info(
 		"starting gateway service",
-		slog.String("http_address", httpAddress),
-		slog.String("catalog_address", catalogAddress),
+		slog.String("http_address", cfg.Gateway.HTTPAddress),
+		slog.String("catalog_address", cfg.Catalog.GRPCAddress),
 	)
 
 	if err := app.Run(
 		ctx,
 		logger,
-		httpAddress,
-		catalogAddress,
+		cfg,
 		tokenVerifier,
 	); err != nil {
 		logger.Error(

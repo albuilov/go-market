@@ -1,1 +1,1 @@
-# Service Gateway
+# Сервис Gateway

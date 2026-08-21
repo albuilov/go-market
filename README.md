@@ -34,7 +34,7 @@ protoc --version
 make --version
 ```
 
-### Установка Protocol Buffers Compiler на macOS
+### Установка компилятора Protocol Buffers на macOS
 
 ```bash
 brew install protobuf
@@ -83,7 +83,7 @@ npm run dev
 ```
 
 Vite откроет приложение на `http://localhost:5173` и проксирует `/api` на
-`http://localhost:8080`.
+`http://localhost:3000`.
 
 Проверить frontend перед сборкой контейнера:
 
@@ -91,6 +91,26 @@ Vite откроет приложение на `http://localhost:5173` и про�
 cd frontend
 npm run lint
 npm run build
+```
+
+## Форматирование и тестирование Go-кода
+
+Отформатировать Go-код во всех модулях:
+
+```bash
+make fmt
+```
+
+Запустить все Go-тесты:
+
+```bash
+make test
+```
+
+Последовательно выполнить форматирование и тесты:
+
+```bash
+make check
 ```
 
 ## Запуск с другим конфигурационным файлом

@@ -1,4 +1,4 @@
-:80 {
+:{$FRONTEND_HTTP_PORT} {
 	encode zstd gzip
 
 	handle /healthz {
@@ -6,7 +6,7 @@
 	}
 
 	handle /api/* {
-		reverse_proxy gateway:8080
+		reverse_proxy gateway:{$GATEWAY_HTTP_PORT}
 	}
 
 	handle {

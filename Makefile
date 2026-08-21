@@ -4,7 +4,7 @@ COMPOSE := docker compose
 TOOLS_BIN := $(CURDIR)/bin
 BUF := $(TOOLS_BIN)/buf
 
-# Docker Compose configuration
+# Управление Docker Compose
 .PHONY: run rebuild up down logs
 
 run:
@@ -22,7 +22,22 @@ down:
 logs:
 	$(COMPOSE) --env-file "$(ENV_FILE)" logs -f
 
-# Protocol Buffers Compiler
+# Форматирование и тестирование Go-кода
+.PHONY: fmt test check
+
+fmt:
+	go fmt ./pkg/...
+	go -C services/catalog fmt ./...
+	go -C services/gateway fmt ./...
+
+test:
+	go test ./pkg/...
+	go -C services/catalog test ./...
+	go -C services/gateway test ./...
+
+check: fmt test
+
+# Работа с Protocol Buffers
 .PHONY: tools proto proto-deps proto-lint
 
 tools:

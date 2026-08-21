@@ -5,20 +5,17 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
-	"time"
 
 	gatewayauth "go-market/gateway/internal/auth"
 	catalogclient "go-market/gateway/internal/client/catalog"
+	"go-market/gateway/internal/config"
 	transporthttp "go-market/gateway/internal/transport/http"
 )
-
-const shutdownTimeout = 5 * time.Second
 
 func Run(
 	ctx context.Context,
 	logger *slog.Logger,
-	httpAddress string,
-	catalogAddress string,
+	cfg config.Config,
 	tokenVerifier gatewayauth.TokenVerifier,
 ) error {
 	authInterceptor := gatewayauth.NewInterceptor(
@@ -26,7 +23,10 @@ func Run(
 		tokenVerifier,
 	)
 
-	catalog, err := catalogclient.New(catalogAddress, authInterceptor.UnaryClient)
+	catalog, err := catalogclient.New(
+		cfg.Catalog.GRPCAddress,
+		authInterceptor.UnaryClient,
+	)
 	if err != nil {
 		return err
 	}
@@ -38,9 +38,9 @@ func Run(
 	}
 
 	server := &http.Server{
-		Addr:              httpAddress,
+		Addr:              cfg.Gateway.HTTPAddress,
 		Handler:           handler,
-		ReadHeaderTimeout: 5 * time.Second,
+		ReadHeaderTimeout: cfg.Gateway.ReadHeaderTimeout,
 	}
 
 	go func() {
@@ -48,7 +48,7 @@ func Run(
 
 		shutdownContext, cancel := context.WithTimeout(
 			context.Background(),
-			shutdownTimeout,
+			cfg.Gateway.ShutdownTimeout,
 		)
 		defer cancel()
 

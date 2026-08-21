@@ -3,19 +3,21 @@ package main
 import (
 	"context"
 	"errors"
-	"go-market/catalog/internal/app"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"go-market/catalog/internal/app"
+	"go-market/catalog/internal/config"
+
 	"google.golang.org/grpc"
 )
 
 func main() {
-	address := os.Getenv("GRPC_ADDRESS")
-	if address == "" {
-		address = ":50051"
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatalf("failed to load configuration: %v", err)
 	}
 
 	ctx, stop := signal.NotifyContext(
@@ -25,9 +27,12 @@ func main() {
 	)
 	defer stop()
 
-	log.Printf("catalog gRPC server is listening on %s", address)
+	log.Printf(
+		"catalog gRPC server is listening on %s",
+		cfg.Catalog.GRPCAddress,
+	)
 
-	if err := app.Run(ctx, address); err != nil &&
+	if err := app.Run(ctx, cfg); err != nil &&
 		!errors.Is(err, grpc.ErrServerStopped) {
 		log.Fatalf("catalog service failed: %v", err)
 	}
