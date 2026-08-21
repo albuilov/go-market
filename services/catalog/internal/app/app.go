@@ -2,9 +2,11 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net"
+	"time"
 
 	"go-market/catalog/internal/config"
 	transportgrpc "go-market/catalog/internal/transport/grpc"
@@ -28,10 +30,14 @@ func Run(
 		return fmt.Errorf("create protovalidate validator: %w", err)
 	}
 
-	listener, err := net.Listen("tcp", cfg.Catalog.GRPCAddress)
+	listener, err := net.Listen(
+		"tcp",
+		cfg.Catalog.GRPCAddress,
+	)
 	if err != nil {
-		return err
+		return fmt.Errorf("listen for catalog gRPC connections: %w", err)
 	}
+	defer listener.Close()
 
 	server := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
@@ -53,12 +59,62 @@ func Run(
 		healthv1.HealthCheckResponse_SERVING,
 	)
 
-	go func() {
-		<-ctx.Done()
+	serveError := make(chan error, 1)
 
-		healthServer.Shutdown()
-		server.GracefulStop()
+	go func() {
+		serveError <- server.Serve(listener)
 	}()
 
-	return server.Serve(listener)
+	select {
+	case err := <-serveError:
+		if err != nil &&
+			!errors.Is(err, grpc.ErrServerStopped) {
+			return fmt.Errorf(
+				"serve catalog gRPC requests: %w",
+				err,
+			)
+		}
+
+		return nil
+
+	case <-ctx.Done():
+	}
+
+	healthServer.Shutdown()
+
+	gracefulStopDone := make(chan struct{})
+
+	go func() {
+		server.GracefulStop()
+		close(gracefulStopDone)
+	}()
+
+	timer := time.NewTimer(cfg.Catalog.ShutdownTimeout)
+	defer timer.Stop()
+
+	select {
+	case <-gracefulStopDone:
+
+	case <-timer.C:
+		logger.Warn(
+			"catalog graceful shutdown timed out",
+			slog.Duration(
+				"timeout",
+				cfg.Catalog.ShutdownTimeout,
+			),
+		)
+
+		server.Stop()
+		<-gracefulStopDone
+	}
+
+	if err := <-serveError; err != nil &&
+		!errors.Is(err, grpc.ErrServerStopped) {
+		return fmt.Errorf(
+			"serve catalog gRPC requests: %w",
+			err,
+		)
+	}
+
+	return nil
 }

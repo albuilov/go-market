@@ -14,6 +14,7 @@ func TestLoad(t *testing.T) {
 	t.Setenv("JWT_AUDIENCE", "audience")
 
 	cfg, err := Load()
+
 	if err != nil {
 		t.Fatalf("Load() error = %v", err)
 	}
@@ -21,6 +22,7 @@ func TestLoad(t *testing.T) {
 	if cfg.Gateway.HTTPAddress != ":9090" {
 		t.Errorf("Gateway.HTTPAddress = %q, want %q", cfg.Gateway.HTTPAddress, ":9090")
 	}
+
 	if cfg.Gateway.ReadHeaderTimeout != 5*time.Second {
 		t.Errorf(
 			"Gateway.ReadHeaderTimeout = %s, want %s",
@@ -28,11 +30,45 @@ func TestLoad(t *testing.T) {
 			5*time.Second,
 		)
 	}
+
 	if cfg.Gateway.ShutdownTimeout != 5*time.Second {
 		t.Errorf("Gateway.ShutdownTimeout = %s, want %s", cfg.Gateway.ShutdownTimeout, 5*time.Second)
 	}
+
 	if cfg.Catalog.GRPCAddress != "catalog:50051" {
 		t.Errorf("Catalog.GRPCAddress = %q, want %q", cfg.Catalog.GRPCAddress, "catalog:50051")
+	}
+
+	if cfg.Gateway.ReadTimeout != defaultGatewayReadTimeout {
+		t.Errorf(
+			"Gateway.ReadTimeout = %s, want %s",
+			cfg.Gateway.ReadTimeout,
+			defaultGatewayReadTimeout,
+		)
+	}
+
+	if cfg.Gateway.WriteTimeout != defaultGatewayWriteTimeout {
+		t.Errorf(
+			"Gateway.WriteTimeout = %s, want %s",
+			cfg.Gateway.WriteTimeout,
+			defaultGatewayWriteTimeout,
+		)
+	}
+
+	if cfg.Gateway.IdleTimeout != defaultGatewayIdleTimeout {
+		t.Errorf(
+			"Gateway.IdleTimeout = %s, want %s",
+			cfg.Gateway.IdleTimeout,
+			defaultGatewayIdleTimeout,
+		)
+	}
+
+	if cfg.Catalog.GRPCRequestTimeout != defaultCatalogGRPCRequestTimeout {
+		t.Errorf(
+			"Catalog.GRPCRequestTimeout = %s, want %s",
+			cfg.Catalog.GRPCRequestTimeout,
+			defaultCatalogGRPCRequestTimeout,
+		)
 	}
 }
 

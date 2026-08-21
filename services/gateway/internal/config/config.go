@@ -8,9 +8,13 @@ import (
 )
 
 const (
-	defaultGatewayHTTPAddress       = ":3000"
-	defaultGatewayReadHeaderTimeout = 5 * time.Second
-	defaultGatewayShutdownTimeout   = 5 * time.Second
+	defaultGatewayHTTPAddress        = ":3000"
+	defaultGatewayReadHeaderTimeout  = 5 * time.Second
+	defaultGatewayReadTimeout        = 15 * time.Second
+	defaultGatewayWriteTimeout       = 15 * time.Second
+	defaultGatewayIdleTimeout        = 60 * time.Second
+	defaultGatewayShutdownTimeout    = 5 * time.Second
+	defaultCatalogGRPCRequestTimeout = 10 * time.Second
 )
 
 type Config struct {
@@ -22,11 +26,15 @@ type Config struct {
 type GatewayConfig struct {
 	HTTPAddress       string
 	ReadHeaderTimeout time.Duration
+	ReadTimeout       time.Duration
+	WriteTimeout      time.Duration
+	IdleTimeout       time.Duration
 	ShutdownTimeout   time.Duration
 }
 
 type CatalogConfig struct {
-	GRPCAddress string
+	GRPCAddress        string
+	GRPCRequestTimeout time.Duration
 }
 
 type JWTConfig struct {
@@ -60,10 +68,14 @@ func Load() (Config, error) {
 		Gateway: GatewayConfig{
 			HTTPAddress:       envconfig.OrDefault("GATEWAY_HTTP_ADDRESS", defaultGatewayHTTPAddress),
 			ReadHeaderTimeout: defaultGatewayReadHeaderTimeout,
+			ReadTimeout:       defaultGatewayReadTimeout,
+			WriteTimeout:      defaultGatewayWriteTimeout,
+			IdleTimeout:       defaultGatewayIdleTimeout,
 			ShutdownTimeout:   defaultGatewayShutdownTimeout,
 		},
 		Catalog: CatalogConfig{
-			GRPCAddress: catalogGRPCAddress,
+			GRPCAddress:        catalogGRPCAddress,
+			GRPCRequestTimeout: defaultCatalogGRPCRequestTimeout,
 		},
 		JWT: JWTConfig{
 			Secret:   jwtSecret,

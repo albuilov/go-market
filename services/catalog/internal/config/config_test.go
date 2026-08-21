@@ -17,6 +17,14 @@ func TestLoad(t *testing.T) {
 			"127.0.0.1:50052",
 		)
 	}
+
+	if cfg.Catalog.ShutdownTimeout != defaultCatalogShutdownTimeout {
+		t.Errorf(
+			"Catalog.ShutdownTimeout = %s, want %s",
+			cfg.Catalog.ShutdownTimeout,
+			defaultCatalogShutdownTimeout,
+		)
+	}
 }
 
 func TestLoadUsesDefaultCatalogGRPCAddress(t *testing.T) {
