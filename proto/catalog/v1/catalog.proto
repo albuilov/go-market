@@ -56,7 +56,7 @@ service CatalogService {
 }
 
 message ListProductsRequest {
-  optional int32 page_size = 1 [
+  optional int32 size = 1 [
     (buf.validate.field).int32 = {
       gte: 1
       lte: 100

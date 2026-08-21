@@ -29,31 +29,31 @@ func TestValidationInterceptor(t *testing.T) {
 		wantHandlerCalled bool
 	}{
 		{
-			name:              "page size omitted",
+			name:              "size omitted",
 			request:           &catalogv1.ListProductsRequest{},
 			wantCode:          codes.OK,
 			wantHandlerCalled: true,
 		},
 		{
-			name: "valid page size",
+			name: "valid size",
 			request: &catalogv1.ListProductsRequest{
-				PageSize: proto.Int32(20),
+				Size: proto.Int32(20),
 			},
 			wantCode:          codes.OK,
 			wantHandlerCalled: true,
 		},
 		{
-			name: "page size is zero",
+			name: "size is zero",
 			request: &catalogv1.ListProductsRequest{
-				PageSize: proto.Int32(0),
+				Size: proto.Int32(0),
 			},
 			wantCode:          codes.InvalidArgument,
 			wantHandlerCalled: false,
 		},
 		{
-			name: "page size exceeds limit",
+			name: "size exceeds limit",
 			request: &catalogv1.ListProductsRequest{
-				PageSize: proto.Int32(101),
+				Size: proto.Int32(101),
 			},
 			wantCode:          codes.InvalidArgument,
 			wantHandlerCalled: false,

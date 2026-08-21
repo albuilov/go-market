@@ -38,7 +38,7 @@
         },
         "parameters": [
           {
-            "name": "pageSize",
+            "name": "size",
             "in": "query",
             "required": false,
             "type": "integer",

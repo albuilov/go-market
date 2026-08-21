@@ -27,7 +27,7 @@ const (
 
 type ListProductsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	PageSize      *int32                 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
+	Size          *int32                 `protobuf:"varint,1,opt,name=size,proto3,oneof" json:"size,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -62,9 +62,9 @@ func (*ListProductsRequest) Descriptor() ([]byte, []int) {
 	return file_catalog_v1_catalog_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ListProductsRequest) GetPageSize() int32 {
-	if x != nil && x.PageSize != nil {
-		return *x.PageSize
+func (x *ListProductsRequest) GetSize() int32 {
+	if x != nil && x.Size != nil {
+		return *x.Size
 	}
 	return 0
 }
@@ -186,11 +186,10 @@ var File_catalog_v1_catalog_proto protoreflect.FileDescriptor
 const file_catalog_v1_catalog_proto_rawDesc = "" +
 	"\n" +
 	"\x18catalog/v1/catalog.proto\x12\n" +
-	"catalog.v1\x1a\x12auth/v1/auth.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"P\n" +
-	"\x13ListProductsRequest\x12+\n" +
-	"\tpage_size\x18\x01 \x01(\x05B\t\xbaH\x06\x1a\x04\x18d(\x01H\x00R\bpageSize\x88\x01\x01B\f\n" +
-	"\n" +
-	"_page_size\"G\n" +
+	"catalog.v1\x1a\x12auth/v1/auth.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"B\n" +
+	"\x13ListProductsRequest\x12\"\n" +
+	"\x04size\x18\x01 \x01(\x05B\t\xbaH\x06\x1a\x04\x18d(\x01H\x00R\x04size\x88\x01\x01B\a\n" +
+	"\x05_size\"G\n" +
 	"\x14ListProductsResponse\x12/\n" +
 	"\bproducts\x18\x01 \x03(\v2\x13.catalog.v1.ProductR\bproducts\"~\n" +
 	"\aProduct\x12\x0e\n" +
