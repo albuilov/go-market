@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	gatewayauth "go-market/gateway/internal/auth"
-	catalogv1 "go-market/gen/go/catalog/v1"
 
 	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
 )
@@ -17,13 +16,13 @@ func TestPolicyIsPublic(t *testing.T) {
 		wantError  bool
 	}{
 		{
-			name:       "annotated public method",
-			fullMethod: catalogv1.CatalogService_ListProducts_FullMethodName,
+			name:       "standard health check is public",
+			fullMethod: healthv1.Health_Check_FullMethodName,
 			want:       true,
 		},
 		{
 			name:       "method without annotation is private",
-			fullMethod: healthv1.Health_Check_FullMethodName,
+			fullMethod: healthv1.Health_List_FullMethodName,
 			want:       false,
 		},
 		{

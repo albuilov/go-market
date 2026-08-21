@@ -6,6 +6,7 @@ import (
 
 	authv1 "go-market/gen/go/auth/v1"
 
+	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
@@ -15,6 +16,12 @@ import (
 type Policy struct{}
 
 func (Policy) IsPublic(fullMethod string) (bool, error) {
+	// Стандартный Health API не содержит нашу authorization-аннотацию.
+	// Метод Check используется только для инфраструктурных проверок готовности.
+	if fullMethod == healthv1.Health_Check_FullMethodName {
+		return true, nil
+	}
+
 	descriptorName, err := methodDescriptorName(fullMethod)
 	if err != nil {
 		return false, err

@@ -14,6 +14,8 @@ import (
 	"buf.build/go/protovalidate"
 	grpcprotovalidate "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/protovalidate"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
 )
 
 func Run(
@@ -39,12 +41,22 @@ func Run(
 			grpcprotovalidate.UnaryServerInterceptor(validator),
 		),
 	)
+
 	handler := transportgrpc.NewHandler()
+	healthServer := health.NewServer()
 
 	catalogv1.RegisterCatalogServiceServer(server, handler)
+	healthv1.RegisterHealthServer(server, healthServer)
+
+	healthServer.SetServingStatus(
+		catalogv1.CatalogService_ServiceDesc.ServiceName,
+		healthv1.HealthCheckResponse_SERVING,
+	)
 
 	go func() {
 		<-ctx.Done()
+
+		healthServer.Shutdown()
 		server.GracefulStop()
 	}()
 

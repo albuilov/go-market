@@ -12,7 +12,7 @@ services:
       - "${FRONTEND_HTTP_PORT}:${FRONTEND_HTTP_PORT}"
     depends_on:
       gateway:
-        condition: service_started
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--output-document=-", "http://localhost:${FRONTEND_HTTP_PORT}/healthz"]
       interval: 10s
@@ -35,9 +35,22 @@ services:
       - "${GATEWAY_HTTP_PORT}:${GATEWAY_HTTP_PORT}"
     depends_on:
       catalog:
-        condition: service_started
+        condition: service_healthy
     networks:
       - go-market-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--output-document=-",
+          "http://127.0.0.1:${GATEWAY_HTTP_PORT}/readyz",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
 
   catalog:
     build:
@@ -49,6 +62,20 @@ services:
       - "${CATALOG_GRPC_PORT}:${CATALOG_GRPC_PORT}"
     networks:
       - go-market-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "/usr/local/bin/grpc_health_probe",
+          "-addr=127.0.0.1:${CATALOG_GRPC_PORT}",
+          "-service=catalog.v1.CatalogService",
+          "-connect-timeout=1s",
+          "-rpc-timeout=1s",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
 
 networks:
   go-market-network:

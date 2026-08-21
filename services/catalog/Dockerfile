@@ -1,3 +1,6 @@
+# Инструмент для проверки стандартного gRPC Health API.
+FROM ghcr.io/grpc-ecosystem/grpc-health-probe:v0.4.56 AS health-probe
+
 FROM golang:1.26.4-alpine AS builder
 
 WORKDIR /src
@@ -17,6 +20,9 @@ RUN addgroup -S app && adduser -S -G app app
 WORKDIR /app
 
 COPY --from=builder /out/catalog ./catalog
+COPY --from=health-probe \
+    /ko-app/grpc-health-probe \
+    /usr/local/bin/grpc_health_probe
 
 USER app
 

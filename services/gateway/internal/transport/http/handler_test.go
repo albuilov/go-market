@@ -13,6 +13,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
@@ -41,6 +42,25 @@ func (s catalogClientStub) ListProducts(
 	return s.response, s.err
 }
 
+type healthClientStub struct {
+	response *healthv1.HealthCheckResponse
+	err      error
+}
+
+func (s healthClientStub) Check(
+	context.Context,
+	*healthv1.HealthCheckRequest,
+	...grpc.CallOption,
+) (*healthv1.HealthCheckResponse, error) {
+	if s.response == nil && s.err == nil {
+		return &healthv1.HealthCheckResponse{
+			Status: healthv1.HealthCheckResponse_SERVING,
+		}, nil
+	}
+
+	return s.response, s.err
+}
+
 func TestHandlerListProducts(t *testing.T) {
 	handler, err := NewHandler(
 		context.Background(),
@@ -57,6 +77,7 @@ func TestHandlerListProducts(t *testing.T) {
 				},
 			},
 		},
+		healthClientStub{},
 	)
 	if err != nil {
 		t.Fatalf("NewHandler() error = %v", err)
@@ -94,6 +115,7 @@ func TestHandlerMapsGRPCErrorToHTTP(t *testing.T) {
 		catalogClientStub{
 			err: status.Error(codes.NotFound, "products not found"),
 		},
+		healthClientStub{},
 	)
 	if err != nil {
 		t.Fatalf("NewHandler() error = %v", err)
@@ -139,6 +161,7 @@ func TestHandlerForwardsRequestIDToGRPC(t *testing.T) {
 				}
 			},
 		},
+		healthClientStub{},
 	)
 	if err != nil {
 		t.Fatalf("NewHandler() error = %v", err)
@@ -173,6 +196,7 @@ func TestHandlerDoesNotExposeInternalGRPCError(t *testing.T) {
 				"database connection contains sensitive details",
 			),
 		},
+		healthClientStub{},
 	)
 	if err != nil {
 		t.Fatalf("NewHandler() error = %v", err)

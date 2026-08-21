@@ -32,7 +32,7 @@ func Run(
 	}
 	defer catalog.Close()
 
-	handler, err := transporthttp.NewHandler(ctx, logger, catalog)
+	handler, err := transporthttp.NewHandler(ctx, logger, catalog, catalog.HealthClient)
 	if err != nil {
 		return err
 	}

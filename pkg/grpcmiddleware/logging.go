@@ -9,6 +9,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/status"
 )
 
@@ -26,6 +27,11 @@ func LoggingUnaryServerInterceptor(
 
 		response, err := handler(ctx, request)
 		code := status.Code(err)
+
+		if info.FullMethod == healthv1.Health_Check_FullMethodName &&
+			code == codes.OK {
+			return response, err
+		}
 
 		id, _ := requestid.FromContext(ctx)
 

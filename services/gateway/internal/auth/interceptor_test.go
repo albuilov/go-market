@@ -82,7 +82,7 @@ func TestInterceptorRejectsPrivateMethod(t *testing.T) {
 
 	err := interceptor.UnaryClient(
 		context.Background(),
-		healthv1.Health_Check_FullMethodName,
+		healthv1.Health_List_FullMethodName,
 		nil,
 		nil,
 		nil,
@@ -134,7 +134,7 @@ func TestInterceptorAllowsAuthenticatedPrivateMethod(t *testing.T) {
 
 	err := interceptor.UnaryClient(
 		ctx,
-		healthv1.Health_Check_FullMethodName,
+		healthv1.Health_List_FullMethodName,
 		nil,
 		nil,
 		nil,

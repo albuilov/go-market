@@ -19,6 +19,7 @@ func NewHandler(
 	ctx context.Context,
 	logger *slog.Logger,
 	catalog catalogv1.CatalogServiceClient,
+	catalogHealth grpcHealthClient,
 ) (http.Handler, error) {
 	gatewayMux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(
@@ -46,6 +47,13 @@ func NewHandler(
 	}
 
 	rootMux := http.NewServeMux()
+
+	rootMux.HandleFunc("GET /healthz", livenessHandler)
+	rootMux.Handle("GET /readyz", readinessHandler(
+		logger,
+		catalogHealth,
+		catalogv1.CatalogService_ServiceDesc.ServiceName,
+	))
 	rootMux.Handle("/", gatewayMux)
 
 	var handler http.Handler

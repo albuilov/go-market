@@ -58,6 +58,9 @@ func Logging(logger *slog.Logger, next http.Handler) http.Handler {
 		if status == 0 {
 			status = http.StatusOK
 		}
+		if isHealthEndpoint(r.URL.Path) && status < http.StatusBadRequest {
+			return
+		}
 
 		level := slog.LevelInfo
 		switch {
@@ -81,4 +84,8 @@ func Logging(logger *slog.Logger, next http.Handler) http.Handler {
 			slog.Duration("duration", time.Since(startedAt)),
 		)
 	})
+}
+
+func isHealthEndpoint(path string) bool {
+	return path == "/healthz" || path == "/readyz"
 }

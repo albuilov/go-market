@@ -5,12 +5,14 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
 )
 
 type Client struct {
 	catalogv1.CatalogServiceClient
 
-	connection *grpc.ClientConn
+	HealthClient healthv1.HealthClient
+	connection   *grpc.ClientConn
 }
 
 func New(address string, unaryInterceptors ...grpc.UnaryClientInterceptor) (*Client, error) {
@@ -23,9 +25,7 @@ func New(address string, unaryInterceptors ...grpc.UnaryClientInterceptor) (*Cli
 	if len(unaryInterceptors) > 0 {
 		options = append(
 			options,
-			grpc.WithChainUnaryInterceptor(
-				unaryInterceptors...,
-			),
+			grpc.WithChainUnaryInterceptor(unaryInterceptors...),
 		)
 	}
 
@@ -36,6 +36,7 @@ func New(address string, unaryInterceptors ...grpc.UnaryClientInterceptor) (*Cli
 
 	return &Client{
 		CatalogServiceClient: catalogv1.NewCatalogServiceClient(connection),
+		HealthClient:         healthv1.NewHealthClient(connection),
 		connection:           connection,
 	}, nil
 }
