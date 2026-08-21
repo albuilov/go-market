@@ -1,4 +1,4 @@
-package grpcmiddleware_test
+package grpcserver_test
 
 import (
 	"bytes"
@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"go-market/pkg/grpcmiddleware"
-	"go-market/pkg/requestid"
+	"go-market/internal/platform/grpcserver"
+	"go-market/internal/platform/requestid"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -32,7 +32,7 @@ func TestRecoveryUnaryServerInterceptor(t *testing.T) {
 		requestID,
 	)
 
-	interceptor := grpcmiddleware.RecoveryUnaryServerInterceptor(logger)
+	interceptor := grpcserver.RecoveryUnaryServerInterceptor(logger)
 
 	response, err := interceptor(
 		ctx,

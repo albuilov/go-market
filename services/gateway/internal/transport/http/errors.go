@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	httpmiddleware "go-market/gateway/internal/transport/http/middleware"
+	httpmiddleware "go-market/services/gateway/internal/transport/http/middleware"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc/codes"
@@ -38,17 +38,7 @@ func grpcErrorHandler(logger *slog.Logger) runtime.ErrorHandlerFunc {
 		}
 
 		message := publicErrorMessage(grpcStatus)
-		requestID, _ := httpmiddleware.RequestIDFromContext(r.Context())
-
-		logger.ErrorContext(
-			r.Context(),
-			"gateway request failed",
-			slog.String("request_id", requestID),
-			slog.String("method", r.Method),
-			slog.String("path", r.URL.Path),
-			slog.String("grpc_code", grpcStatus.Code().String()),
-			slog.Any("error", err),
-		)
+		httpmiddleware.RecordError(r.Context(), err)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(httpStatus)

@@ -1,9 +1,9 @@
-package grpcmiddleware
+package grpcserver
 
 import (
 	"context"
 
-	"go-market/pkg/requestid"
+	"go-market/internal/platform/requestid"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"

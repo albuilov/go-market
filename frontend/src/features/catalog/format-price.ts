@@ -1,7 +1,5 @@
-export function formatPrice(price: number | string, currencyCode: string): string {
-  const value = Number(price);
-
-  if (!Number.isFinite(value)) {
+export function formatPrice(price: number, currencyCode: string): string {
+  if (!Number.isFinite(price)) {
     return "Цена недоступна";
   }
 
@@ -10,8 +8,8 @@ export function formatPrice(price: number | string, currencyCode: string): strin
       style: "currency",
       currency: currencyCode,
       maximumFractionDigits: 2,
-    }).format(value);
+    }).format(price);
   } catch {
-    return `${value.toFixed(2)} ${currencyCode}`;
+    return `${price.toFixed(2)} ${currencyCode}`;
   }
 }

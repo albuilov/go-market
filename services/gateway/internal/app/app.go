@@ -8,12 +8,12 @@ import (
 	"net"
 	"net/http"
 
-	"go-market/pkg/grpcmiddleware"
-
-	gatewayauth "go-market/gateway/internal/auth"
-	catalogclient "go-market/gateway/internal/client/catalog"
-	"go-market/gateway/internal/config"
-	transporthttp "go-market/gateway/internal/transport/http"
+	catalogv1 "go-market/gen/go/catalog/v1"
+	platformhealth "go-market/internal/platform/health"
+	gatewayauth "go-market/services/gateway/internal/auth"
+	catalogclient "go-market/services/gateway/internal/client/catalog"
+	"go-market/services/gateway/internal/config"
+	transporthttp "go-market/services/gateway/internal/transport/http"
 )
 
 type namedHTTPServer struct {
@@ -40,7 +40,7 @@ func Run(
 
 	catalog, err := catalogclient.New(
 		cfg.Catalog.GRPCAddress,
-		grpcmiddleware.TimeoutUnaryClientInterceptor(cfg.Catalog.GRPCRequestTimeout),
+		cfg.Catalog.GRPCRequestTimeout,
 		authInterceptor.UnaryClient,
 	)
 	if err != nil {
@@ -48,11 +48,20 @@ func Run(
 	}
 	defer catalog.Close()
 
+	readiness := platformhealth.NewGroup(
+		map[string]platformhealth.Checker{
+			"catalog": platformhealth.NewGRPCChecker(
+				catalog.HealthClient,
+				catalogv1.CatalogService_ServiceDesc.ServiceName,
+			),
+		},
+	)
+
 	handler, err := transporthttp.NewHandler(
 		ctx,
 		logger,
 		catalog,
-		catalog.HealthClient,
+		readiness,
 	)
 	if err != nil {
 		return fmt.Errorf("create gateway HTTP handler: %w", err)

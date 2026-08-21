@@ -114,13 +114,13 @@ func (x *ListProductsResponse) GetProducts() []*Product {
 }
 
 type Product struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	PriceMinorUnits int64                  `protobuf:"varint,3,opt,name=price_minor_units,json=priceMinorUnits,proto3" json:"price_minor_units,omitempty"`
-	CurrencyCode    string                 `protobuf:"bytes,4,opt,name=currency_code,json=currencyCode,proto3" json:"currency_code,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	CurrencyCode  string                 `protobuf:"bytes,4,opt,name=currency_code,json=currencyCode,proto3" json:"currency_code,omitempty"`
+	Price         float64                `protobuf:"fixed64,5,opt,name=price,proto3" json:"price,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Product) Reset() {
@@ -167,18 +167,18 @@ func (x *Product) GetName() string {
 	return ""
 }
 
-func (x *Product) GetPriceMinorUnits() int64 {
-	if x != nil {
-		return x.PriceMinorUnits
-	}
-	return 0
-}
-
 func (x *Product) GetCurrencyCode() string {
 	if x != nil {
 		return x.CurrencyCode
 	}
 	return ""
+}
+
+func (x *Product) GetPrice() float64 {
+	if x != nil {
+		return x.Price
+	}
+	return 0
 }
 
 var File_catalog_v1_catalog_proto protoreflect.FileDescriptor
@@ -191,12 +191,12 @@ const file_catalog_v1_catalog_proto_rawDesc = "" +
 	"\x04size\x18\x01 \x01(\x05B\t\xbaH\x06\x1a\x04\x18d(\x01H\x00R\x04size\x88\x01\x01B\a\n" +
 	"\x05_size\"G\n" +
 	"\x14ListProductsResponse\x12/\n" +
-	"\bproducts\x18\x01 \x03(\v2\x13.catalog.v1.ProductR\bproducts\"~\n" +
+	"\bproducts\x18\x01 \x03(\v2\x13.catalog.v1.ProductR\bproducts\"\x81\x01\n" +
 	"\aProduct\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12*\n" +
-	"\x11price_minor_units\x18\x03 \x01(\x03R\x0fpriceMinorUnits\x12#\n" +
-	"\rcurrency_code\x18\x04 \x01(\tR\fcurrencyCode2\xd5\x01\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
+	"\rcurrency_code\x18\x04 \x01(\tR\fcurrencyCode\x12\x14\n" +
+	"\x05price\x18\x05 \x01(\x01R\x05priceJ\x04\b\x03\x10\x04R\x11price_minor_units2\xd5\x01\n" +
 	"\x0eCatalogService\x12\xc2\x01\n" +
 	"\fListProducts\x12\x1f.catalog.v1.ListProductsRequest\x1a .catalog.v1.ListProductsResponse\"o\x92AN\x12\rList productsJ=\n" +
 	"\adefault\x122\n" +

@@ -1,7 +1,10 @@
 package catalog
 
 import (
+	"time"
+
 	catalogv1 "go-market/gen/go/catalog/v1"
+	"go-market/internal/platform/grpcclient"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -15,21 +18,21 @@ type Client struct {
 	connection   *grpc.ClientConn
 }
 
-func New(address string, unaryInterceptors ...grpc.UnaryClientInterceptor) (*Client, error) {
-	options := []grpc.DialOption{
-		grpc.WithTransportCredentials(
-			insecure.NewCredentials(),
-		),
-	}
-
-	if len(unaryInterceptors) > 0 {
-		options = append(
-			options,
-			grpc.WithChainUnaryInterceptor(unaryInterceptors...),
-		)
-	}
-
-	connection, err := grpc.NewClient(address, options...)
+func New(
+	address string,
+	requestTimeout time.Duration,
+	unaryInterceptors ...grpc.UnaryClientInterceptor,
+) (*Client, error) {
+	// В локальной Docker-сети шифрование пока отключено.
+	// TODO: перед production-развертыванием передавать TLS или mTLS credentials.
+	connection, err := grpcclient.New(
+		grpcclient.Config{
+			Address:              address,
+			RequestTimeout:       requestTimeout,
+			TransportCredentials: insecure.NewCredentials(),
+		},
+		unaryInterceptors...,
+	)
 	if err != nil {
 		return nil, err
 	}

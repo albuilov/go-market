@@ -3,7 +3,7 @@ import { api } from "@/api/client";
 export interface Product {
   id: string;
   name: string;
-  price: number | string;
+  price: number;
   currency_code: string;
 }
 

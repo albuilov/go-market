@@ -8,18 +8,15 @@ import (
 	"os/signal"
 	"syscall"
 
-	"go-market/catalog/internal/app"
-	"go-market/catalog/internal/config"
+	"go-market/internal/platform/logging"
+	"go-market/services/catalog/internal/app"
+	"go-market/services/catalog/internal/config"
 
 	"google.golang.org/grpc"
 )
 
 func main() {
-	logger := slog.New(
-		slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-			Level: slog.LevelInfo,
-		}),
-	)
+	logger := logging.New(os.Stdout, "catalog", slog.LevelInfo)
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -39,12 +36,8 @@ func main() {
 		slog.String("grpc_address", cfg.Catalog.GRPCAddress),
 	)
 
-	if err := app.Run(ctx, logger, cfg); err != nil &&
-		!errors.Is(err, grpc.ErrServerStopped) {
-		logger.Error(
-			"catalog service failed",
-			slog.Any("error", err),
-		)
+	if err := app.Run(ctx, logger, cfg); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
+		logger.Error("catalog service failed", slog.Any("error", err))
 		os.Exit(1)
 	}
 }

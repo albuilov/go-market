@@ -1,11 +1,11 @@
-package grpcmiddleware_test
+package grpcclient_test
 
 import (
 	"context"
 	"testing"
 	"time"
 
-	"go-market/pkg/grpcmiddleware"
+	"go-market/internal/platform/grpcclient"
 
 	"google.golang.org/grpc"
 )
@@ -13,7 +13,7 @@ import (
 func TestTimeoutUnaryClientInterceptorAddsDeadline(t *testing.T) {
 	const timeout = time.Second
 
-	interceptor := grpcmiddleware.TimeoutUnaryClientInterceptor(timeout)
+	interceptor := grpcclient.TimeoutUnaryClientInterceptor(timeout)
 
 	err := interceptor(
 		context.Background(),
@@ -63,7 +63,7 @@ func TestTimeoutUnaryClientInterceptorPreservesEarlierDeadline(t *testing.T) {
 		t.Fatal("parent context does not have a deadline")
 	}
 
-	interceptor := grpcmiddleware.TimeoutUnaryClientInterceptor(
+	interceptor := grpcclient.TimeoutUnaryClientInterceptor(
 		time.Second,
 	)
 

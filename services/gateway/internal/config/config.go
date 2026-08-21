@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"go-market/pkg/envconfig"
+	"go-market/internal/platform/envconfig"
 )
 
 const (

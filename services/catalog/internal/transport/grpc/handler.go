@@ -4,6 +4,8 @@ import "context"
 
 import catalogv1 "go-market/gen/go/catalog/v1"
 
+const minorUnitsPerUnit = 100
+
 type Handler struct {
 	catalogv1.UnimplementedCatalogServiceServer
 }
@@ -18,24 +20,23 @@ func (h *Handler) ListProducts(
 ) (*catalogv1.ListProductsResponse, error) {
 	return &catalogv1.ListProductsResponse{
 		Products: []*catalogv1.Product{
-			{
-				Id:              "product-1",
-				Name:            "Mechanical Keyboard",
-				PriceMinorUnits: 129900,
-				CurrencyCode:    "RUB",
-			},
-			{
-				Id:              "product-2",
-				Name:            "Wireless Mouse",
-				PriceMinorUnits: 79900,
-				CurrencyCode:    "RUB",
-			},
-			{
-				Id:              "product-3",
-				Name:            "27-inch Monitor",
-				PriceMinorUnits: 2499900,
-				CurrencyCode:    "RUB",
-			},
+			newProduct("product-1", "Mechanical Keyboard", 129900, "RUB"),
+			newProduct("product-2", "Wireless Mouse", 79900, "RUB"),
+			newProduct("product-3", "27-inch Monitor", 2499900, "RUB"),
 		},
 	}, nil
+}
+
+func newProduct(
+	id string,
+	name string,
+	priceMinorUnits int64,
+	currencyCode string,
+) *catalogv1.Product {
+	return &catalogv1.Product{
+		Id:           id,
+		Name:         name,
+		Price:        float64(priceMinorUnits) / minorUnitsPerUnit,
+		CurrencyCode: currencyCode,
+	}
 }

@@ -1,11 +1,11 @@
-package grpcmiddleware
+package grpcserver
 
 import (
 	"context"
 	"log/slog"
 	"runtime/debug"
 
-	"go-market/pkg/requestid"
+	"go-market/internal/platform/requestid"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

@@ -25,4 +25,8 @@ func TestHandlerListProducts(t *testing.T) {
 	if got, want := response.GetProducts()[0].GetId(), "product-1"; got != want {
 		t.Errorf("first product ID = %q, want %q", got, want)
 	}
+
+	if got, want := response.GetProducts()[0].GetPrice(), 1299.0; got != want {
+		t.Errorf("first product price = %v, want %v", got, want)
+	}
 }

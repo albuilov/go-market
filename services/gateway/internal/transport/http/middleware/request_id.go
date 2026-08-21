@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"go-market/pkg/requestid"
+	"go-market/internal/platform/requestid"
 )
 
 // RequestIDHeader содержит имя HTTP-заголовка с идентификатором запроса.

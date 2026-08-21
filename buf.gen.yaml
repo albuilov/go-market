@@ -24,6 +24,7 @@ plugins:
     opt:
       - allow_merge=true
       - disable_default_errors=true
+      - json_names_for_fields=false
       - merge_file_name=go-market
       - omit_array_item_type_when_ref_sibling=true
       - openapi_naming_strategy=fqn

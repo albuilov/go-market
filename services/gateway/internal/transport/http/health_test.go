@@ -70,7 +70,7 @@ func TestHealthEndpoints(t *testing.T) {
 				context.Background(),
 				newTestLogger(),
 				catalogClientStub{},
-				tt.health,
+				testReadiness(tt.health),
 			)
 			if err != nil {
 				t.Fatalf("NewHandler() error = %v", err)

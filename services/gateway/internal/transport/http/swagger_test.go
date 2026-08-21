@@ -1,11 +1,45 @@
 package http
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 )
+
+func TestOpenAPIProductMatchesPublicJSON(t *testing.T) {
+	var specification struct {
+		Definitions map[string]struct {
+			Properties map[string]json.RawMessage `json:"properties"`
+		} `json:"definitions"`
+	}
+
+	if err := json.Unmarshal(openapiSpecification(), &specification); err != nil {
+		t.Fatalf("unmarshal OpenAPI specification: %v", err)
+	}
+
+	properties := specification.Definitions["catalog.v1.Product"].Properties
+	for _, field := range []string{"id", "name", "price", "currency_code"} {
+		if _, ok := properties[field]; !ok {
+			t.Errorf("OpenAPI Product does not contain %q", field)
+		}
+	}
+	for _, internalField := range []string{"price_minor_units", "priceMinorUnits"} {
+		if _, ok := properties[internalField]; ok {
+			t.Errorf("OpenAPI Product exposes internal field %q", internalField)
+		}
+	}
+}
+
+func openapiSpecification() []byte {
+	handler := NewSwaggerHandler(http.NotFoundHandler())
+	request := httptest.NewRequest(http.MethodGet, openAPIPath, nil)
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, request)
+
+	return response.Body.Bytes()
+}
 
 func TestSwaggerHandlerServesOpenAPISpecification(t *testing.T) {
 	handler := NewSwaggerHandler(http.NotFoundHandler())

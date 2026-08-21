@@ -3,13 +3,14 @@ package http
 import (
 	"context"
 	"fmt"
-	"go-market/pkg/requestid"
 	"log/slog"
 	"net/http"
 	"strings"
 
-	httpmiddleware "go-market/gateway/internal/transport/http/middleware"
 	catalogv1 "go-market/gen/go/catalog/v1"
+	platformhealth "go-market/internal/platform/health"
+	"go-market/internal/platform/requestid"
+	httpmiddleware "go-market/services/gateway/internal/transport/http/middleware"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -19,7 +20,7 @@ func NewHandler(
 	ctx context.Context,
 	logger *slog.Logger,
 	catalog catalogv1.CatalogServiceClient,
-	catalogHealth grpcHealthClient,
+	readiness platformhealth.Checker,
 ) (http.Handler, error) {
 	gatewayMux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(
@@ -49,11 +50,7 @@ func NewHandler(
 	rootMux := http.NewServeMux()
 
 	rootMux.HandleFunc("GET /healthz", livenessHandler)
-	rootMux.Handle("GET /readyz", readinessHandler(
-		logger,
-		catalogHealth,
-		catalogv1.CatalogService_ServiceDesc.ServiceName,
-	))
+	rootMux.Handle("GET /readyz", readinessHandler(readiness))
 	rootMux.Handle("/", gatewayMux)
 
 	var handler http.Handler

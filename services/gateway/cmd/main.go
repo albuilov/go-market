@@ -7,17 +7,14 @@ import (
 	"os/signal"
 	"syscall"
 
-	"go-market/gateway/internal/app"
-	gatewayauth "go-market/gateway/internal/auth"
-	"go-market/gateway/internal/config"
+	"go-market/internal/platform/logging"
+	"go-market/services/gateway/internal/app"
+	gatewayauth "go-market/services/gateway/internal/auth"
+	"go-market/services/gateway/internal/config"
 )
 
 func main() {
-	logger := slog.New(
-		slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-			Level: slog.LevelInfo,
-		}),
-	)
+	logger := logging.New(os.Stdout, "gateway", slog.LevelInfo)
 
 	cfg, err := config.Load()
 	if err != nil {

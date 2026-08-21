@@ -1,11 +1,11 @@
-package grpcmiddleware
+package grpcserver
 
 import (
 	"context"
 	"log/slog"
 	"time"
 
-	"go-market/pkg/requestid"
+	"go-market/internal/platform/requestid"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -35,14 +35,21 @@ func LoggingUnaryServerInterceptor(
 
 		id, _ := requestid.FromContext(ctx)
 
-		logger.Log(
-			ctx,
-			grpcLogLevel(code),
-			"gRPC request completed",
+		attributes := []any{
 			slog.String("request_id", id),
 			slog.String("method", info.FullMethod),
 			slog.String("grpc_code", code.String()),
 			slog.Duration("duration", time.Since(startedAt)),
+		}
+		if err != nil {
+			attributes = append(attributes, slog.Any("error", err))
+		}
+
+		logger.Log(
+			ctx,
+			grpcLogLevel(code),
+			"gRPC request completed",
+			attributes...,
 		)
 
 		return response, err

@@ -69,8 +69,11 @@ message ListProductsResponse {
 }
 
 message Product {
+  reserved 3;
+  reserved "price_minor_units";
+
   string id = 1;
   string name = 2;
-  int64 price_minor_units = 3;
   string currency_code = 4;
+  double price = 5;
 }

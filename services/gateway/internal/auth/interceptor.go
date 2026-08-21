@@ -6,19 +6,16 @@ import (
 	"log/slog"
 	"strings"
 
+	"go-market/internal/platform/identity"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
-const (
-	userIDMetadataKey = "x-user-id"
-	rolesMetadataKey  = "x-user-roles"
-)
-
 type TokenVerifier interface {
-	Verify(rawToken string) (Principal, error)
+	Verify(rawToken string) (identity.Principal, error)
 }
 
 type Interceptor struct {
@@ -59,7 +56,7 @@ func (i *Interceptor) UnaryClient(
 		return status.Error(codes.Internal, "internal server error")
 	}
 
-	ctx = removeTrustedIdentity(ctx)
+	ctx = identity.RemoveFromOutgoing(ctx)
 
 	rawToken, tokenProvided, err := bearerToken(ctx)
 	if err != nil {
@@ -89,20 +86,13 @@ func (i *Interceptor) UnaryClient(
 
 	principal, err := i.verifier.Verify(rawToken)
 	if err != nil {
-		i.logger.WarnContext(
-			ctx,
-			"JWT verification failed",
-			slog.String("method", method),
-			slog.Any("error", err),
-		)
-
 		return status.Error(
 			codes.Unauthenticated,
 			"invalid access token",
 		)
 	}
 
-	ctx = addTrustedIdentity(ctx, principal)
+	ctx = identity.AddToOutgoing(ctx, principal)
 
 	return invoker(
 		ctx,
@@ -141,37 +131,4 @@ func bearerToken(ctx context.Context) (string, bool, error) {
 	}
 
 	return parts[1], true, nil
-}
-
-func removeTrustedIdentity(ctx context.Context) context.Context {
-	md, ok := metadata.FromOutgoingContext(ctx)
-	if !ok {
-		return ctx
-	}
-
-	md = md.Copy()
-	md.Delete(userIDMetadataKey)
-	md.Delete(rolesMetadataKey)
-
-	return metadata.NewOutgoingContext(ctx, md)
-}
-
-func addTrustedIdentity(
-	ctx context.Context,
-	principal Principal,
-) context.Context {
-	md, ok := metadata.FromOutgoingContext(ctx)
-	if !ok {
-		md = metadata.MD{}
-	} else {
-		md = md.Copy()
-	}
-
-	md.Set(userIDMetadataKey, principal.UserID)
-
-	if len(principal.Roles) > 0 {
-		md.Set(rolesMetadataKey, principal.Roles...)
-	}
-
-	return metadata.NewOutgoingContext(ctx, md)
 }

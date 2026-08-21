@@ -1,6 +1,7 @@
 package http
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"log/slog"
@@ -10,6 +11,7 @@ import (
 	"testing"
 
 	catalogv1 "go-market/gen/go/catalog/v1"
+	platformhealth "go-market/internal/platform/health"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -47,6 +49,13 @@ type healthClientStub struct {
 	err      error
 }
 
+func testReadiness(client healthClientStub) platformhealth.Checker {
+	return platformhealth.NewGRPCChecker(
+		client,
+		catalogv1.CatalogService_ServiceDesc.ServiceName,
+	)
+}
+
 func (s healthClientStub) Check(
 	context.Context,
 	*healthv1.HealthCheckRequest,
@@ -69,15 +78,15 @@ func TestHandlerListProducts(t *testing.T) {
 			response: &catalogv1.ListProductsResponse{
 				Products: []*catalogv1.Product{
 					{
-						Id:              "product-1",
-						Name:            "Keyboard",
-						PriceMinorUnits: 129900,
-						CurrencyCode:    "RUB",
+						Id:           "product-1",
+						Name:         "Keyboard",
+						Price:        1299,
+						CurrencyCode: "RUB",
 					},
 				},
 			},
 		},
-		healthClientStub{},
+		testReadiness(healthClientStub{}),
 	)
 	if err != nil {
 		t.Fatalf("NewHandler() error = %v", err)
@@ -90,7 +99,7 @@ func TestHandlerListProducts(t *testing.T) {
 
 	if !strings.Contains(
 		recorder.Body.String(),
-		`"price_minor_units":"129900"`,
+		`"price":1299`,
 	) {
 		t.Errorf("response has unexpected JSON format: %s", recorder.Body.String())
 	}
@@ -115,7 +124,7 @@ func TestHandlerMapsGRPCErrorToHTTP(t *testing.T) {
 		catalogClientStub{
 			err: status.Error(codes.NotFound, "products not found"),
 		},
-		healthClientStub{},
+		testReadiness(healthClientStub{}),
 	)
 	if err != nil {
 		t.Fatalf("NewHandler() error = %v", err)
@@ -136,6 +145,40 @@ func TestHandlerMapsGRPCErrorToHTTP(t *testing.T) {
 
 	if !strings.Contains(recorder.Body.String(), `"code":"NotFound"`) {
 		t.Errorf("unexpected response body: %s", recorder.Body.String())
+	}
+}
+
+func TestHandlerLogsGRPCErrorOnce(t *testing.T) {
+	var output bytes.Buffer
+	logger := slog.New(slog.NewJSONHandler(&output, nil))
+
+	handler, err := NewHandler(
+		context.Background(),
+		logger,
+		catalogClientStub{
+			err: status.Error(codes.NotFound, "products not found"),
+		},
+		testReadiness(healthClientStub{}),
+	)
+	if err != nil {
+		t.Fatalf("NewHandler() error = %v", err)
+	}
+
+	request := httptest.NewRequest(http.MethodGet, "/api/v1/products", nil)
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+
+	logs := output.String()
+	if got := strings.Count(logs, `"msg":"HTTP request completed"`); got != 1 {
+		t.Errorf("HTTP completion log count = %d, want 1; logs: %s", got, logs)
+	}
+	if strings.Contains(logs, "gateway request failed") {
+		t.Errorf("duplicate gateway error log found: %s", logs)
+	}
+	if !strings.Contains(logs, `"level":"WARN"`) ||
+		!strings.Contains(logs, `"status":404`) ||
+		!strings.Contains(logs, "products not found") {
+		t.Errorf("completion log does not contain error context: %s", logs)
 	}
 }
 
@@ -161,7 +204,7 @@ func TestHandlerForwardsRequestIDToGRPC(t *testing.T) {
 				}
 			},
 		},
-		healthClientStub{},
+		testReadiness(healthClientStub{}),
 	)
 	if err != nil {
 		t.Fatalf("NewHandler() error = %v", err)
@@ -196,7 +239,7 @@ func TestHandlerDoesNotExposeInternalGRPCError(t *testing.T) {
 				"database connection contains sensitive details",
 			),
 		},
-		healthClientStub{},
+		testReadiness(healthClientStub{}),
 	)
 	if err != nil {
 		t.Fatalf("NewHandler() error = %v", err)

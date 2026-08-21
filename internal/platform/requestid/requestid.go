@@ -1,3 +1,4 @@
+// Package requestid создает и переносит идентификатор запроса между транспортами.
 package requestid
 
 import (

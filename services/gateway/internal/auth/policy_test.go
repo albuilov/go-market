@@ -3,7 +3,7 @@ package auth_test
 import (
 	"testing"
 
-	gatewayauth "go-market/gateway/internal/auth"
+	gatewayauth "go-market/services/gateway/internal/auth"
 
 	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
 )

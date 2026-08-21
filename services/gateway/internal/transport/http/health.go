@@ -2,25 +2,14 @@ package http
 
 import (
 	"context"
-	"log/slog"
 	"net/http"
 	"time"
 
-	"go-market/pkg/requestid"
-
-	"google.golang.org/grpc"
-	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
+	platformhealth "go-market/internal/platform/health"
+	httpmiddleware "go-market/services/gateway/internal/transport/http/middleware"
 )
 
 const readinessCheckTimeout = time.Second
-
-type grpcHealthClient interface {
-	Check(
-		ctx context.Context,
-		request *healthv1.HealthCheckRequest,
-		options ...grpc.CallOption,
-	) (*healthv1.HealthCheckResponse, error)
-}
 
 func livenessHandler(
 	w http.ResponseWriter,
@@ -34,9 +23,7 @@ func livenessHandler(
 }
 
 func readinessHandler(
-	logger *slog.Logger,
-	client grpcHealthClient,
-	service string,
+	checker platformhealth.Checker,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(
@@ -45,30 +32,8 @@ func readinessHandler(
 		)
 		defer cancel()
 
-		response, err := client.Check(
-			ctx,
-			&healthv1.HealthCheckRequest{
-				Service: service,
-			},
-		)
-
-		statusValue := healthv1.HealthCheckResponse_UNKNOWN
-		if response != nil {
-			statusValue = response.GetStatus()
-		}
-
-		if err != nil ||
-			statusValue != healthv1.HealthCheckResponse_SERVING {
-			id, _ := requestid.FromContext(r.Context())
-
-			logger.WarnContext(
-				r.Context(),
-				"gateway readiness check failed",
-				slog.String("request_id", id),
-				slog.String("service", service),
-				slog.String("status", statusValue.String()),
-				slog.Any("error", err),
-			)
+		if err := checker.Check(ctx); err != nil {
+			httpmiddleware.RecordError(r.Context(), err)
 
 			writeHealthResponse(
 				w,

@@ -3,7 +3,7 @@ package config
 import (
 	"time"
 
-	"go-market/pkg/envconfig"
+	"go-market/internal/platform/envconfig"
 )
 
 const (

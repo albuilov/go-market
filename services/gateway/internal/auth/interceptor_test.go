@@ -6,8 +6,9 @@ import (
 	"log/slog"
 	"testing"
 
-	gatewayauth "go-market/gateway/internal/auth"
 	catalogv1 "go-market/gen/go/catalog/v1"
+	"go-market/internal/platform/identity"
+	gatewayauth "go-market/services/gateway/internal/auth"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -17,13 +18,13 @@ import (
 )
 
 type verifierStub struct {
-	principal gatewayauth.Principal
+	principal identity.Principal
 	err       error
 	calls     int
 	rawToken  string
 }
 
-func (v *verifierStub) Verify(rawToken string) (gatewayauth.Principal, error) {
+func (v *verifierStub) Verify(rawToken string) (identity.Principal, error) {
 	v.calls++
 	v.rawToken = rawToken
 
@@ -110,7 +111,7 @@ func TestInterceptorRejectsPrivateMethod(t *testing.T) {
 
 func TestInterceptorAllowsAuthenticatedPrivateMethod(t *testing.T) {
 	verifier := &verifierStub{
-		principal: gatewayauth.Principal{
+		principal: identity.Principal{
 			UserID: "user-123",
 			Roles:  []string{"customer"},
 		},

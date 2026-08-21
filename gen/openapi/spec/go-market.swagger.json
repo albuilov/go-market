@@ -72,12 +72,12 @@
         "name": {
           "type": "string"
         },
-        "priceMinorUnits": {
-          "type": "string",
-          "format": "int64"
-        },
-        "currencyCode": {
+        "currency_code": {
           "type": "string"
+        },
+        "price": {
+          "type": "number",
+          "format": "double"
         }
       }
     },

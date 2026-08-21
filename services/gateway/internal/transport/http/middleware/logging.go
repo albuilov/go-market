@@ -1,10 +1,27 @@
 package middleware
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"time"
 )
+
+type requestStateKey struct{}
+
+type requestState struct {
+	err error
+}
+
+// RecordError сохраняет ошибку для единственной итоговой записи HTTP-запроса.
+func RecordError(ctx context.Context, err error) {
+	state, ok := ctx.Value(requestStateKey{}).(*requestState)
+	if !ok {
+		return
+	}
+
+	state.err = err
+}
 
 type responseWriter struct {
 	http.ResponseWriter
@@ -51,6 +68,10 @@ func Logging(logger *slog.Logger, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		startedAt := time.Now()
 		writer := &responseWriter{ResponseWriter: w}
+		state := &requestState{}
+		r = r.WithContext(
+			context.WithValue(r.Context(), requestStateKey{}, state),
+		)
 
 		next.ServeHTTP(writer, r)
 
@@ -72,16 +93,23 @@ func Logging(logger *slog.Logger, next http.Handler) http.Handler {
 
 		requestID, _ := RequestIDFromContext(r.Context())
 
-		logger.Log(
-			r.Context(),
-			level,
-			"HTTP request completed",
+		attributes := []any{
 			slog.String("request_id", requestID),
 			slog.String("method", r.Method),
 			slog.String("path", r.URL.Path),
 			slog.Int("status", status),
 			slog.Int("response_bytes", writer.bytes),
 			slog.Duration("duration", time.Since(startedAt)),
+		}
+		if state.err != nil {
+			attributes = append(attributes, slog.Any("error", state.err))
+		}
+
+		logger.Log(
+			r.Context(),
+			level,
+			"HTTP request completed",
+			attributes...,
 		)
 	})
 }

@@ -1,11 +1,11 @@
-package grpcmiddleware_test
+package grpcserver_test
 
 import (
 	"context"
 	"testing"
 
-	"go-market/pkg/grpcmiddleware"
-	"go-market/pkg/requestid"
+	"go-market/internal/platform/grpcserver"
+	"go-market/internal/platform/requestid"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/metadata"
@@ -51,7 +51,7 @@ func TestRequestIDUnaryServerInterceptor(t *testing.T) {
 			var handlerRequestID string
 			handlerCalled := false
 
-			_, err := grpcmiddleware.RequestIDUnaryServerInterceptor(
+			_, err := grpcserver.RequestIDUnaryServerInterceptor(
 				ctx,
 				nil,
 				nil,

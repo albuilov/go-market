@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"go-market/internal/platform/identity"
+
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -13,11 +15,6 @@ const (
 	minimumSecretLength = 32
 	clockSkew           = 30 * time.Second
 )
-
-type Principal struct {
-	UserID string
-	Roles  []string
-}
 
 type tokenClaims struct {
 	Roles []string `json:"roles,omitempty"`
@@ -62,7 +59,7 @@ func NewVerifier(
 	}, nil
 }
 
-func (v *Verifier) Verify(rawToken string) (Principal, error) {
+func (v *Verifier) Verify(rawToken string) (identity.Principal, error) {
 	claims := &tokenClaims{}
 
 	token, err := jwt.ParseWithClaims(
@@ -83,18 +80,18 @@ func (v *Verifier) Verify(rawToken string) (Principal, error) {
 		jwt.WithStrictDecoding(),
 	)
 	if err != nil {
-		return Principal{}, fmt.Errorf("verify JWT: %w", err)
+		return identity.Principal{}, fmt.Errorf("verify JWT: %w", err)
 	}
 
 	if !token.Valid {
-		return Principal{}, errors.New("JWT is invalid")
+		return identity.Principal{}, errors.New("JWT is invalid")
 	}
 
 	if strings.TrimSpace(claims.Subject) == "" {
-		return Principal{}, errors.New("JWT subject is required")
+		return identity.Principal{}, errors.New("JWT subject is required")
 	}
 
-	return Principal{
+	return identity.Principal{
 		UserID: claims.Subject,
 		Roles:  append([]string(nil), claims.Roles...),
 	}, nil
