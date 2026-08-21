@@ -5,10 +5,7 @@ TOOLS_BIN := $(CURDIR)/bin
 BUF := $(TOOLS_BIN)/buf
 
 # Управление Docker Compose
-.PHONY: run rebuild up down logs
-
-run:
-	$(COMPOSE) --env-file "$(ENV_FILE)" up --build
+.PHONY: rebuild up down logs
 
 rebuild:
 	$(COMPOSE) --env-file "$(ENV_FILE)" up --build --force-recreate
